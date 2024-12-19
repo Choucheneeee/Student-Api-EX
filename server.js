@@ -1,10 +1,14 @@
 const express=require("express")
-const app=express()
 const studentroute=require("./routes/student.route")
+const userroute=require("./routes/user.route")
+
+const app=express()
+
+app.use(express.urlencoded({ extended:true}))
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
 
 app.use("/",studentroute)
+app.use("/user",userroute)
 
 
 
