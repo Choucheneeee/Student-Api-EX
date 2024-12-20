@@ -1,16 +1,20 @@
 const moong=require("mongoose")
 const Joi=require("joi")
 
-
 const schemaValidation = Joi.object({
-    name: Joi.string().alphanum().min(2).max(20).required(),
+    name: Joi.string()
+      .pattern(/^[a-zA-Z]+$/) // Allows only alphabetic characters
+      .min(2)
+      .max(20)
+      .required(),
     age: Joi.number().integer().min(1).max(120).required(),
     email: Joi.string()
       .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
       .required(),
-      phone: Joi.number().required(), // Phone as a string to validate 10 digits
-    });
-
+    phone: Joi.string() // Use a string to validate the phone number format
+      .pattern(/^\d{10}$/) // Ensures exactly 10 digits
+      .required(),
+  });
 
 
 let schemaStudent=moong.Schema({
@@ -29,10 +33,10 @@ exports.postNewStudent=(name,age,email,phone)=>{
     
     return new Promise((resolve,reject)=>{
         moong.connect(url)
-        .then(()=>{
-            const validation = schemaValidation.validate({ name, age, email, phone });
+        .then(async()=>{
+            const validation = await schemaValidation.validateAsync({ name, age, email, phone });
                 if (validation.error) {
-                    reject(validation)
+                    reject(validation.error.details[0].message)
                 }
             const student=new Student({
                 name:name,  

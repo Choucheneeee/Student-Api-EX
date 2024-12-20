@@ -34,14 +34,29 @@ route.post("/",verifyToken,async (req,res)=>{
     })
 })
 
+secretKey="chouchene"
+clientKey="0000"
+
+verifySecretClient=(req,res,next)=>{
+    let sk=req.params.secret
+    let ck=req.params.client
+    if (sk==secretKey && ck==clientKey){
+        next()
+    }
+    else{
+
+        res.json({err:'invalide secret key and client key'})
+    }
+}
 
 route.get("/students",verifyToken,(req,res)=>{
-    mod.getStudents()
-    .then((msg)=>{
-        res.send(msg)
-        }).catch((msg)=>{
+        mod.getStudents()
+        .then((msg)=>{
             res.send(msg)
-            })
+            }).catch((msg)=>{
+                res.send(msg)
+                })
+   
 })
 route.get("/student/:id",verifyToken,(req,res)=>{
     const id=req.params.id
