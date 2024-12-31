@@ -4,23 +4,23 @@ const jwt=require("jsonwebtoken")
 
 var privateKey="secret key"
 
-verifyToken=(req,res,next)=>{
-    let token=req.headers.authorization
-    if(!token){
-        return res.status(403).send({message:"Any token provided  .... !"})
-    }
-    try{
-        console.log("token:",token)
-        jwt.verify(token,privateKey)
-        next()
-    }
-    catch(err){
-        return res.status(401).send({message:"Invalid Token !"})
-}
-}
+// verifyToken=(req,res,next)=>{
+//     let token=req.headers.authorization
+//     if(!token){
+//         return res.status(403).send({message:"Any token provided  .... !"})
+//     }
+//     try{
+//         console.log("token:",token)
+//         jwt.verify(token,privateKey)
+//         next()
+//     }
+//     catch(err){
+//         return res.status(401).send({message:"Invalid Token !"})
+// }
+// }
 
 
-route.post("/",verifyToken,async (req,res)=>{
+route.post("/",async (req,res)=>{
     const {name,age,email,phone}= req.body
     console.log("req body",req.body)
     console.log("name my",name)
@@ -37,19 +37,19 @@ route.post("/",verifyToken,async (req,res)=>{
 secretKey="chouchene"
 clientKey="0000"
 
-verifySecretClient=(req,res,next)=>{
-    let sk=req.params.secret
-    let ck=req.params.client
-    if (sk==secretKey && ck==clientKey){
-        next()
-    }
-    else{
+// verifySecretClient=(req,res,next)=>{
+//     let sk=req.params.secret
+//     let ck=req.params.client
+//     if (sk==secretKey && ck==clientKey){
+//         next()
+//     }
+//     else{
 
-        res.json({err:'invalide secret key and client key'})
-    }
-}
+//         res.json({err:'invalide secret key and client key'})
+//     }
+// }
 
-route.get("/students",verifyToken,(req,res)=>{
+route.get("/students",(req,res)=>{
         mod.getStudents()
         .then((msg)=>{
             res.send(msg)
@@ -58,7 +58,7 @@ route.get("/students",verifyToken,(req,res)=>{
                 })
    
 })
-route.get("/student/:id",verifyToken,(req,res)=>{
+route.get("/student/:id",(req,res)=>{
     const id=req.params.id
     console.log("id",id)
     mod.getOneStudent(id)
@@ -68,7 +68,7 @@ route.get("/student/:id",verifyToken,(req,res)=>{
             res.send(msg)
             })
 })
-route.delete("/student/:id",verifyToken,(req,res)=>{
+route.delete("/student/:id",(req,res)=>{
     const id=req.params.id
     console.log("id",id)
     mod.deleteOneStudent(id)
@@ -78,7 +78,7 @@ route.delete("/student/:id",verifyToken,(req,res)=>{
             res.send(msg)
             })
 })
-route.patch("/student/:id",verifyToken,(req,res)=>{
+route.patch("/student/:id",(req,res)=>{
     const id=req.params.id
     const {name,age,email,phone}= req.body
     mod.updateOneStudent(id,name,age,email,phone)

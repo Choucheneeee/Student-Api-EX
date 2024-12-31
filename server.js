@@ -7,10 +7,15 @@ const app=express()
 app.use(express.urlencoded({ extended:true}))
 app.use(express.json())
 
+const cors = require('cors');
+app.use(cors());
+
 app.use((req,res,next)=>{
     res.setHeader("Access-Control-Allow-Origin","*")
-    res.setHeader("Access-Control-Request-Method","*")
-    res.setHeader("Access-Control-Request-Headers","authorization")
+    res.setHeader("Access-Control-Request-Methods","*")
+    res.setHeader("Access-Control-Request-Headers","*")
+    res.setHeader("Access-Control-Allow-Methods","*")
+
      next()
 
 

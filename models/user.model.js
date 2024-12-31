@@ -9,6 +9,10 @@ let schemaUser=moong.Schema({
 
 })
 
+
+
+
+
 var User=moong.model('user',schemaUser)
 var url='mongodb://localhost:27017/FacApi'
 
@@ -40,7 +44,6 @@ exports.register=(username,email,password)=>{
                                     }).catch(()=>{
                                         moong.disconnect()
                                         reject("Error")
-    
                                     }) 
                             })
                         }

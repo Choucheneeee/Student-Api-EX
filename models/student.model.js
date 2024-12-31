@@ -1,6 +1,5 @@
 const moong=require("mongoose")
 const Joi=require("joi")
-
 const schemaValidation = Joi.object({
     name: Joi.string()
       .pattern(/^[a-zA-Z]+$/) // Allows only alphabetic characters
@@ -12,8 +11,18 @@ const schemaValidation = Joi.object({
       .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
       .required(),
     phone: Joi.string() // Use a string to validate the phone number format
-      .pattern(/^\d{10}$/) // Ensures exactly 10 digits
       .required(),
+  });
+
+moong.connect('mongodb://localhost:27017/FacApi', {
+   
+  })
+  .then(() => {
+    console.log('MongoDB connected');
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);  // Exit if connection fails
   });
 
 
@@ -60,51 +69,33 @@ exports.postNewStudent=(name,age,email,phone)=>{
 
 
 
-exports.getStudents=()=>{
-    
-    return new Promise((resolve,reject)=>{
-        moong.connect(url)
-        .then(()=>{
-            return Student.find()
-            .then((doc)=>{
-                    moong.disconnect()
-                    resolve(doc)
-                }).catch(()=>{
-                    moong.disconnect()
-                    reject("Error")
+exports.getStudents = async () => {
+    try {
+        await moong.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
+        const students = await Student.find();
+        moong.disconnect();
+        return students;
+    } catch (err) {
+        moong.disconnect();
+        console.error("Error fetching students:", err);
+        throw new Error("Error fetching students");
+    }
+};
 
-                })   
-        })
-        
-    }).catch((msg)=>{
-        console.log(msg)
-        reject(msg)
-        
-    })
-}
+exports.getOneStudent = async (id) => {
+    try {
+        await moong.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
+        const student = await Student.findOne({ _id: id });
+        moong.disconnect();
+        console.log("One Student found:", student);
+        return student;
+    } catch (err) {
+        moong.disconnect();
+        console.error("Error fetching one student:", err);
+        throw new Error("Error fetching one student");
+    }
+};
 
-exports.getOneStudent=(id)=>{
-    return new Promise((resolve,reject)=>{
-        moong.connect(url)
-        .then(()=>{
-            return Student.findOne({_id:id})
-            .then((doc)=>{
-                console.log("doc",doc)
-                    moong.disconnect()
-                    resolve(doc)
-                }).catch(()=>{
-                    moong.disconnect()
-                    reject("Error")
-
-                })   
-        })
-        
-    }).catch((msg)=>{
-        console.log(msg)
-        reject(msg)
-        
-    })
-}
 exports.deleteOneStudent=(id)=>{
     return new Promise((resolve,reject)=>{
         moong.connect(url)
