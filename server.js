@@ -1,32 +1,28 @@
-const express=require("express")
-const studentroute=require("./routes/student.route")
-const userroute=require("./routes/user.route")
+const express = require("express");
+const studentroute = require("./routes/student.route");
+const userroute = require("./routes/user.route");
+const cors = require("cors");
 
-const app=express()
+const app = express();
 
-app.use(express.urlencoded({ extended:true}))
-app.use(express.json())
+// Middleware for parsing request body
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-const cors = require('cors');
-app.use(cors());
+// CORS Configuration
+app.use(
+  cors({
+    origin: "*", // Replace with your Angular app's URL
+    methods: "*",
+    allowedHeaders: "*",
+  })
+);
 
-app.use((req,res,next)=>{
-    res.setHeader("Access-Control-Allow-Origin","*")
-    res.setHeader("Access-Control-Request-Methods","*")
-    res.setHeader("Access-Control-Request-Headers","*")
-    res.setHeader("Access-Control-Allow-Methods","*")
+// Define routes
+app.use("/", studentroute);
+app.use("/user", userroute);
 
-     next()
-
-
-})
-app.use("/",studentroute)
-app.use("/user",userroute)
-
-
-
-
-
-
-
-app.listen(3000,()=>{console.log("server running on port 3000")})
+// Start the server
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});

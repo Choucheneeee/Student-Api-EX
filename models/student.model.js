@@ -15,7 +15,7 @@ const schemaValidation = Joi.object({
   });
 
 moong.connect('mongodb://localhost:27017/FacApi', {
-   
+
   })
   .then(() => {
     console.log('MongoDB connected');
@@ -96,27 +96,38 @@ exports.getOneStudent = async (id) => {
     }
 };
 
-exports.deleteOneStudent=(id)=>{
-    return new Promise((resolve,reject)=>{
-        moong.connect(url)
-        .then(()=>{
-            return Student.deleteOne({_id:id})
-            .then((doc)=>{
-                    moong.disconnect()
-                    resolve("Student Deleted Succefully")
-                }).catch(()=>{
-                    moong.disconnect()
-                    reject("Error")
+exports.deleteOneStudent = async (id) => {
+    return new Promise((resolve, reject) => {
+      console.log("ID from model:", id);
+      moong.connect(url)
+        .then(async() => {
 
-                })   
+          const query = { _id:id };
+          console.log("Delete Query:", query);
+            st= await Student.findOne({_id:id})
+            console.log(st,'st')
+          return await Student.deleteOne(query)
+            .then((result) => {
+              console.log("Delete Result:", result);
+              moong.disconnect();
+              if (result.deletedCount > 0) {
+                resolve("Student Deleted Successfully");
+              } else {
+                reject("No student found with the given ID");
+              }
+            })
+            .catch((error) => {
+              moong.disconnect();
+              console.error("Error during delete operation:", error);
+              reject("Error deleting student");
+            });
         })
-        
-    }).catch((msg)=>{
-        console.log(msg)
-        reject(msg)
-        
-    })
-}
+        .catch((connectionError) => {
+          console.error("Error connecting to MongoDB:", connectionError);
+          reject("Error connecting to database");
+        });
+    });
+  };
 exports.updateOneStudent=(id,name,age,email,phone)=>{
     return new Promise((resolve,reject)=>{
         moong.connect(url)
