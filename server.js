@@ -18,9 +18,16 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  res.setTimeout(10000, () => { // Set timeout to 10 seconds
+    res.status(408).send('Request Timeout');
+  });
+  next();
+});
+
 // Define routes
 app.use("/", studentroute);
-app.use("/user", userroute);
+app.use("/", userroute);
 
 // Start the server
 app.listen(3000, () => {

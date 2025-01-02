@@ -1,23 +1,24 @@
 const route=require("express").Router()
 const mod=require("../models/student.model")
 const jwt=require("jsonwebtoken")
+require('dotenv').config();
 
 var privateKey="secret key"
 
-// verifyToken=(req,res,next)=>{
-//     let token=req.headers.authorization
-//     if(!token){
-//         return res.status(403).send({message:"Any token provided  .... !"})
-//     }
-//     try{
-//         console.log("token:",token)
-//         jwt.verify(token,privateKey)
-//         next()
-//     }
-//     catch(err){
-//         return res.status(401).send({message:"Invalid Token !"})
-// }
-// }
+verifyToken=(req,res,next)=>{
+    let token=req.headers.authorization
+    if(!token){
+        return res.status(403).send({message:"Any token provided  .... !"})
+    }
+    try{
+        console.log("token:",token)
+        jwt.verify(token,privateKey)
+        next()
+    }
+    catch(err){
+        return res.status(401).send({message:"Invalid Token !"})
+}
+}
 
 
 route.post("/",async (req,res)=>{
@@ -34,22 +35,23 @@ route.post("/",async (req,res)=>{
     })
 })
 
-secretKey="chouchene"
-clientKey="0000"
+secretKey=process.env.secret
+clientKey=process.env.client
 
-// verifySecretClient=(req,res,next)=>{
-//     let sk=req.params.secret
-//     let ck=req.params.client
-//     if (sk==secretKey && ck==clientKey){
-//         next()
-//     }
-//     else{
+verifySecretClient=(req,res,next)=>{
+    let sk=req.query.secret
+    let ck=req.query.clientKey
+    console.log(ck,"ck")
+    if (sk==secretKey && ck==clientKey){
+        next()
+    } 
+    else{
 
-//         res.json({err:'invalide secret key and client key'})
-//     }
-// }
+        res.json({err:'invalide secret key and client key'})
+    }
+}
 
-route.get("/students",(req,res)=>{
+route.get("/students",verifySecretClient,verifyToken,(req,res)=>{
         mod.getStudents()
         .then((msg)=>{
             res.send(msg)
@@ -60,7 +62,6 @@ route.get("/students",(req,res)=>{
 })
 route.get("/student/:id",(req,res)=>{
     const id=req.params.id
-    console.log("id",id)
     mod.getOneStudent(id)
     .then((msg)=>{
         res.send(msg)
@@ -70,7 +71,6 @@ route.get("/student/:id",(req,res)=>{
 })
 route.delete("/student/:id",(req,res)=>{
     const id=req.params.id
-    console.log("id",id)
     mod.deleteOneStudent(id)
     .then((msg)=>{
         res.send(msg)

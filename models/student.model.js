@@ -1,159 +1,114 @@
-const moong=require("mongoose")
-const Joi=require("joi")
+const moong = require('mongoose');
+const Joi = require('joi');
+
+// Schema validation with Joi
 const schemaValidation = Joi.object({
-    name: Joi.string()
-      .pattern(/^[a-zA-Z]+$/) // Allows only alphabetic characters
-      .min(2)
-      .max(20)
-      .required(),
-    age: Joi.number().integer().min(1).max(120).required(),
-    email: Joi.string()
-      .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-      .required(),
-    phone: Joi.string() // Use a string to validate the phone number format
-      .required(),
-  });
+  name: Joi.string().pattern(/^[a-zA-Z]+$/).min(2).max(20).required(),
+  age: Joi.number().integer().min(1).max(120).required(),
+  email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
+  phone: Joi.string().required(),
+});
 
-moong.connect('mongodb://localhost:27017/FacApi', {
+// Database URL
+const url = 'mongodb://localhost:27017/FacApi';
 
-  })
+// Define the Mongoose Schema for Student
+const schemaStudent = moong.Schema({
+  name: String,
+  age: Number,
+  email: String,
+  phone: Number,
+});
+
+const Student = moong.model('student', schemaStudent);
+
+// Connect to MongoDB once at the start of the application
+moong.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('MongoDB connected');
   })
   .catch((err) => {
     console.error('MongoDB connection error:', err);
-    process.exit(1);  // Exit if connection fails
+    process.exit(1); // Exit if connection fails
   });
 
+// Create a new student
+exports.postNewStudent = async (name, age, email, phone) => {
+  try {
+    // Validate input
+    await schemaValidation.validateAsync({ name, age, email, phone });
 
-let schemaStudent=moong.Schema({
-    name:String,
-    age:Number,
-    email:String,
-    phone:Number
-
-})
-
-var Student=moong.model('student',schemaStudent)
-var url='mongodb://localhost:27017/FacApi'
-
-
-exports.postNewStudent=(name,age,email,phone)=>{
-    
-    return new Promise((resolve,reject)=>{
-        moong.connect(url)
-        .then(async()=>{
-            const validation = await schemaValidation.validateAsync({ name, age, email, phone });
-                if (validation.error) {
-                    reject(validation.error.details[0].message)
-                }
-            const student=new Student({
-                name:name,  
-                age:age,
-                email:email,
-                phone:phone
-                })
-                console.log("student ",student)
-                student.save().then((doc)=>{
-                    moong.disconnect()
-                    resolve(doc)
-                }).catch(()=>{
-                    moong.disconnect()
-                    reject("Error")
-
-                })   
-        })
-        
-    })
-}
-
-
-
-exports.getStudents = async () => {
-    try {
-        await moong.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
-        const students = await Student.find();
-        moong.disconnect();
-        return students;
-    } catch (err) {
-        moong.disconnect();
-        console.error("Error fetching students:", err);
-        throw new Error("Error fetching students");
-    }
-};
-
-exports.getOneStudent = async (id) => {
-    try {
-        await moong.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
-        const student = await Student.findOne({ _id: id });
-        moong.disconnect();
-        console.log("One Student found:", student);
-        return student;
-    } catch (err) {
-        moong.disconnect();
-        console.error("Error fetching one student:", err);
-        throw new Error("Error fetching one student");
-    }
-};
-
-exports.deleteOneStudent = async (id) => {
-    return new Promise((resolve, reject) => {
-      console.log("ID from model:", id);
-      moong.connect(url)
-        .then(async() => {
-
-          const query = { _id:id };
-          console.log("Delete Query:", query);
-            st= await Student.findOne({_id:id})
-            console.log(st,'st')
-          return await Student.deleteOne(query)
-            .then((result) => {
-              console.log("Delete Result:", result);
-              moong.disconnect();
-              if (result.deletedCount > 0) {
-                resolve("Student Deleted Successfully");
-              } else {
-                reject("No student found with the given ID");
-              }
-            })
-            .catch((error) => {
-              moong.disconnect();
-              console.error("Error during delete operation:", error);
-              reject("Error deleting student");
-            });
-        })
-        .catch((connectionError) => {
-          console.error("Error connecting to MongoDB:", connectionError);
-          reject("Error connecting to database");
-        });
+    // Create a new student instance
+    const student = new Student({
+      name,
+      age,
+      email,
+      phone,
     });
-  };
-exports.updateOneStudent=(id,name,age,email,phone)=>{
-    return new Promise((resolve,reject)=>{
-        moong.connect(url)
-        .then(()=>{
-            return Student.updateOne({_id:id},{name,age,email,phone})
-            .then(async()=>{
-                    const st= await Student.findOne({_id:id})
-                    .then((st)=>{
-                        console.log(st,'student')
-                        resolve(st)
-                        moong.disconnect()
 
-                    })
-                }).catch((err)=>{
-                    console.log(err)
-                    moong.disconnect()
-                    reject("Error")
+    // Save the student to the database
+    const doc = await student.save();
+    return doc;
+  } catch (error) {
+    console.error('Error saving student:', error);
+    throw new Error('Error saving student');
+  }
+};
 
-                })   
-        })
-        
-    }).catch((msg)=>{
-        console.log(msg)
-        reject(msg)
-        
-    })
-}
+// Get all students
+exports.getStudents = async () => {
+  try {
+    const students = await Student.find();
+    return students;
+  } catch (err) {
+    console.error('Error fetching students:', err);
+    throw new Error('Error fetching students');
+  }
+};
 
+// Get a single student by ID
+exports.getOneStudent = async (id) => {
+  try {
+    const student = await Student.findOne({ _id: id });
+    console.log('One Student found:', student);
+    return student;
+  } catch (err) {
+    console.error('Error fetching one student:', err);
+    throw new Error('Error fetching one student');
+  }
+};
 
+// Delete a student by ID
+exports.deleteOneStudent = async (id) => {
+  try {
+    const result = await Student.deleteOne({ _id: id });
+    if (result.deletedCount > 0) {
+      return 'Student Deleted Successfully';
+    } else {
+      throw new Error('No student found with the given ID');
+    }
+  } catch (error) {
+    console.error('Error during delete operation:', error);
+    throw new Error('Error deleting student');
+  }
+};
+
+// Update a student by ID
+exports.updateOneStudent = async (id, name, age, email, phone) => {
+  try {
+    const updatedStudent = await Student.updateOne(
+      { _id: id },
+      { name, age, email, phone }
+    );
+    if (updatedStudent.nModified > 0) {
+      // Fetch the updated student
+      const student = await Student.findOne({ _id: id });
+      return student;
+    } else {
+      throw new Error('No student found to update');
+    }
+  } catch (error) {
+    console.error('Error updating student:', error);
+    throw new Error('Error updating student');
+  }
+};
