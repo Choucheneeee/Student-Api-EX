@@ -11,7 +11,6 @@ verifyToken=(req,res,next)=>{
         return res.status(403).send({message:"Any token provided  .... !"})
     }
     try{
-        console.log("token:",token)
         jwt.verify(token,privateKey)
         next()
     }
@@ -23,14 +22,12 @@ verifyToken=(req,res,next)=>{
 
 route.post("/",async (req,res)=>{
     const {name,age,email,phone}= req.body
-    console.log("req body",req.body)
-    console.log("name my",name)
+    
     mod.postNewStudent(name,age,email,phone)
     .then((msg)=>{
         res.send(msg)
     })
     .catch((validation)=>{
-        console.log("msg valid",validation)
         res.json(validation)
     })
 })
@@ -41,7 +38,6 @@ clientKey=process.env.client
 verifySecretClient=(req,res,next)=>{
     let sk=req.query.secret
     let ck=req.query.clientKey
-    console.log(ck,"ck")
     if (sk==secretKey && ck==clientKey){
         next()
     } 

@@ -19,7 +19,6 @@ var url='mongodb://localhost:27017/FacApi'
 exports.register=(username,email,password)=>{
     
     return new Promise((resolve,reject)=>{
-        console.log("connected")
         moong.connect(url)
         .then(()=>{
             User.findOne({email:email})
@@ -36,7 +35,6 @@ exports.register=(username,email,password)=>{
                                     email:email,
                                     password:hpassword
                                     })
-                                    console.log("user ",user)
                                     user.save()
                                     .then((doc)=>{
                                         moong.disconnect()
@@ -61,7 +59,6 @@ exports.login=(email,password)=>{
     return new Promise((resolve,reject)=>{
         moong.connect(url)
                 .then(()=>{
-                    console.log("connected")
                     return User.findOne({email:email})
                     .then((user)=>{
                         if(!user)
@@ -89,7 +86,6 @@ exports.login=(email,password)=>{
                                         
                                         })
                                         .catch((err)=>{
-                                            console.log(err)
                                             moong.disconnect()
                                             reject(err)
                                         })

@@ -25,7 +25,6 @@ const Student = moong.model('student', schemaStudent);
 // Connect to MongoDB once at the start of the application
 moong.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log('MongoDB connected');
   })
   .catch((err) => {
     console.error('MongoDB connection error:', err);
@@ -70,7 +69,6 @@ exports.getStudents = async () => {
 exports.getOneStudent = async (id) => {
   try {
     const student = await Student.findOne({ _id: id });
-    console.log('One Student found:', student);
     return student;
   } catch (err) {
     console.error('Error fetching one student:', err);
