@@ -19,7 +19,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.setTimeout(10000, () => { // Set timeout to 10 seconds
+  res.setTimeout(10000, () => { 
     res.status(408).send('Request Timeout');
   });
   next();
