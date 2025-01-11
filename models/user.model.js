@@ -63,7 +63,7 @@ exports.login=(email,password)=>{
                     .then((user)=>{
                         if(!user)
                             {   
-                                reject({message:'Email/Password is incorrect',status:400})
+                                reject({message:'Email/Password is incorrect !',status:400})
                                 moong.disconnect()
 
                                 }
