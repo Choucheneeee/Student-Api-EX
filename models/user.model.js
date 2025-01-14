@@ -80,7 +80,7 @@ exports.login=(email,password)=>{
                                             moong.disconnect()
                                         }
                                         else{
-                                            reject({message:'Email/Password is incorrect',status:400})
+                                            reject({message:'Email/Passwordd is incorrect',status:400})
                                             moong.disconnect()
                                         }
                                         
