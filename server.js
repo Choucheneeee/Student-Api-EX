@@ -20,7 +20,7 @@ app.use(
 
 app.use((req, res, next) => {
   res.setTimeout(10000, () => { 
-    res.status(408).send('Request Tiimeout');
+    res.status(408).send('Request Timeout');
   });
   next();
 });
